@@ -13,13 +13,17 @@ interface RoomCreateProps {
 export function RoomCreate({ onCreated }: RoomCreateProps) {
   const { roomCode, createRoom } = useTransferStore();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
   const handleCreate = async () => {
     setLoading(true);
+    setError("");
     try {
       await createRoom();
       onCreated();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "创建房间失败，请重试");
     } finally {
       setLoading(false);
     }
@@ -60,9 +64,12 @@ export function RoomCreate({ onCreated }: RoomCreateProps) {
   }
 
   return (
-    <Button onClick={handleCreate} disabled={loading} size="lg" className="w-full">
-      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      创建房间
-    </Button>
+    <div className="flex flex-col gap-2">
+      <Button onClick={handleCreate} disabled={loading} size="lg" className="w-full">
+        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        创建房间
+      </Button>
+      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
   );
 }

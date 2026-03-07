@@ -14,7 +14,8 @@ export default function TransferPage() {
   const [mode, setMode] = useState<"choose" | "create" | "join">("choose");
 
   const handleCreated = () => {
-    router.push(`/transfer/room?room=${roomCode || ""}`);
+    const code = useTransferStore.getState().roomCode;
+    router.push(`/transfer/room?room=${code}`);
   };
 
   const handleJoined = () => {
