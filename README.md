@@ -1,68 +1,69 @@
-# OpenClaw Install Tools
+<p align="center">
+  <img src="src/app/icon.svg" width="80" height="80" alt="OpenClaw Logo" />
+</p>
 
-[English](./README.en.md) | 中文
+<h1 align="center">OpenClaw Install Tools</h1>
 
-帮你装好 [OpenClaw](https://openclaw.ai/) — 交互式安装向导、局域网文件传输、智能问题诊断。
+<p align="center">
+  帮你装好 <a href="https://openclaw.ai/">OpenClaw</a> — 安装指南、局域网传输、AI 问题诊断
+</p>
 
-> OpenClaw 是一个部署在你电脑上的个人 AI 助手，可以通过 WhatsApp、Telegram、Discord 等聊天平台与你交互。本工具帮助你完成安装过程。
+<p align="center">
+  <a href="./README.en.md">English</a> | 中文
+</p>
+
+> OpenClaw 是一个部署在你电脑上的个人 AI 助手，可以通过 WhatsApp、Telegram、Discord、飞书等聊天平台与你交互。本工具帮助你完成安装过程。
 
 ## 功能
 
-### 安装向导 `/install`
+### 安装指南 `/install`
 
-- **条件分支式引导** — 根据你的系统环境（有没有 Node.js？用什么安装方式？）自动推荐步骤路径
-- **Windows / macOS 双平台** — 自动检测操作系统，提供针对性的安装流程
-- **一键复制命令** — 所有终端命令支持点击即复制
-- **命令生成器** — 选择平台、安装方式、AI 模型、聊天平台，生成定制化安装命令
+- **分阶段引导** — 环境准备 → OpenClaw 初始化 → 飞书插件接入，完整覆盖从零到可用
+- **复制 → 粘贴 → AI 验证** — 每一步提供 shell 命令复制，粘贴终端输出后 AI 判断是否正确
+- **macOS / Windows 双平台** — 平台差异通过 tab 切换，不用跳转页面
+- **飞书插件接入** — 集成官方飞书插件安装指南，从创建应用到配对授权全流程
 
 ### LAN 传输 `/transfer`
 
 - **WebRTC P2P 直连** — 文件和文本通过局域网直接传输，不经任何服务器
 - **4 位房间号配对** — 两台电脑打开网页，输入相同房间号即可连接
-- **文件传输** — 选择文件发送，对方一键下载
-- **文本传输** — 粘贴终端报错日志，实时发送给对方
-- **剪贴板同步** — 开启后双方剪贴板自动同步
+- **文件 / 文本 / 剪贴板** — 文件传输、实时文本发送、剪贴板自动同步
 
-### 问题诊断 `/debug`
+### AI 诊断 `/debug`
 
-- **常见错误速查** — 6 大类已知安装问题（权限、环境、网络、端口、证书、API Key）
-- **分平台修复方案** — 每个问题提供 Windows 和 macOS 各自的修复步骤和命令
-- **AI 日志分析** — 粘贴报错日志，AI 智能分析给出诊断和修复建议
-- **两层诊断** — 前端正则匹配（毫秒级）+ Workers AI 兜底（处理未知错误）
+- **纯 AI 分析** — 粘贴任意报错日志，Cloudflare Workers AI 分析问题并给出修复建议
+- **无需注册** — 即粘即诊，日志不会被存储
 
 ## 架构
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│                        浏览器 (设备 A)                         │
-│  ┌──────────┐  ┌──────────────┐  ┌──────────────────────┐    │
-│  │ 安装向导  │  │  问题诊断     │  │     LAN 传输          │    │
-│  │ /install  │  │  /debug      │  │     /transfer        │    │
-│  └──────────┘  └──────┬───────┘  └──────────┬───────────┘    │
-│                       │                      │                │
-│                       │ AI 分析              │ WebRTC         │
-│                       ▼                      │ DataChannel    │
-│               ┌───────────────┐              │                │
-│               │ Workers AI    │              │     P2P 直连    │
-│               │ (llama 模型)  │              │                │
-│               └───────────────┘              │                │
-│                                              ▼                │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │            Cloudflare Durable Objects                    │  │
-│  │            (仅转发 SDP 信令，~2KB)                        │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│                                              │                │
-└──────────────────────────────────────────────┼────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                      浏览器 (设备 A)                          │
+│  ┌──────────┐  ┌──────────────┐  ┌───────────────────┐     │
+│  │ 安装指南  │  │  AI 诊断     │  │    LAN 传输        │     │
+│  │ /install  │  │  /debug      │  │    /transfer       │     │
+│  └────┬─────┘  └──────┬───────┘  └─────────┬─────────┘     │
+│       │                │                     │               │
+│       │ 步骤验证        │ 日志分析            │ WebRTC        │
+│       ▼                ▼                     │ DataChannel   │
+│  ┌──────────────────────────┐                │               │
+│  │     Cloudflare Workers AI │                │  P2P 直连     │
+│  │     (llama-3.1-8b)       │                │               │
+│  └──────────────────────────┘                ▼               │
+│                                    ┌──────────────────┐      │
+│                                    │   PeerJS 信令     │      │
+│                                    └──────────────────┘      │
+└─────────────────────────────────────────────────────────────┘
                                                │ WebRTC
                                                │ DataChannel
-┌──────────────────────────────────────────────┼────────────────┐
-│                        浏览器 (设备 B)        │                │
-│                                              ▼                │
-│                                    ┌──────────────────┐       │
-│                                    │    LAN 传输       │       │
-│                                    │    /transfer      │       │
-│                                    └──────────────────┘       │
-└───────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┼──────────────┐
+│                      浏览器 (设备 B)          │              │
+│                                              ▼              │
+│                                    ┌──────────────────┐     │
+│                                    │    LAN 传输       │     │
+│                                    │    /transfer      │     │
+│                                    └──────────────────┘     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## 技术栈
@@ -73,22 +74,15 @@
 | 部署 | Cloudflare Workers |
 | UI | shadcn/ui + Tailwind CSS v4 + Lucide React |
 | 状态管理 | Zustand |
-| 动画 | Framer Motion |
-| P2P 传输 | WebRTC 原生 API (RTCPeerConnection + DataChannel) |
-| 信令 | Cloudflare Durable Objects (WebSocket) |
+| P2P 传输 | PeerJS (WebRTC) |
 | AI 分析 | Cloudflare Workers AI (llama-3.1-8b-instruct) |
 
 ## 快速开始
 
 ```bash
-# 克隆项目
 git clone https://github.com/Muluk-m/openclaw-install-tools.git
 cd openclaw-install-tools
-
-# 安装依赖
 npm install
-
-# 启动开发服务器
 npm run dev
 ```
 
@@ -96,10 +90,10 @@ npm run dev
 
 ### Cloudflare 部署
 
-项目使用了 Durable Objects（信令）和 Workers AI（日志分析），部署前需确保 Cloudflare 账户已启用这些功能。
+项目使用了 Workers AI（日志分析 + 步骤验证），部署前需确保 Cloudflare 账户已启用该功能。
 
 ```bash
-# 本地预览（模拟 Cloudflare 环境）
+# 本地预览
 npm run preview
 
 # 部署到 Cloudflare Workers
@@ -112,61 +106,43 @@ npm run deploy
 
 ```
 src/
-├── app/                          # Next.js App Router 页面
-│   ├── page.tsx                  # Landing 首页
-│   ├── install/                  # 安装向导模块
-│   │   ├── page.tsx              # 平台选择（自动检测 OS）
-│   │   ├── windows/page.tsx      # Windows 安装向导
-│   │   ├── mac/page.tsx          # macOS 安装向导
-│   │   └── customize/page.tsx    # 命令生成器
-│   ├── transfer/                 # LAN 传输模块
+├── app/
+│   ├── page.tsx                  # 首页
+│   ├── install/page.tsx          # 安装指南（分阶段步骤列表）
+│   ├── transfer/
 │   │   ├── page.tsx              # 创建/加入房间
 │   │   └── room/page.tsx         # 传输界面
-│   ├── debug/                    # 诊断模块
-│   │   ├── page.tsx              # 错误搜索 + 常见问题
-│   │   ├── [slug]/page.tsx       # 问题详情
-│   │   └── analyze/page.tsx      # AI 日志分析
-│   └── api/                      # API 路由
-│       ├── room/route.ts         # 房间管理 API
-│       └── analyze/route.ts      # AI 分析 API
+│   ├── debug/page.tsx            # AI 诊断
+│   └── api/analyze/route.ts      # Workers AI API（步骤验证 + 日志分析）
 ├── components/
 │   ├── ui/                       # shadcn/ui 组件
-│   ├── install/                  # 安装向导组件
+│   ├── install/
+│   │   ├── command-block.tsx     # 可复制的命令块
+│   │   ├── step-block.tsx        # 单步展示（命令 + 期望输出 + 平台 tab）
+│   │   └── step-verifier.tsx     # AI 验证（粘贴输出 → 通过/失败）
 │   ├── transfer/                 # 传输组件
-│   └── debug/                    # 诊断组件
+│   └── debug/log-analyzer.tsx    # AI 日志分析器
 ├── lib/
+│   ├── install-steps.ts          # 安装步骤数据（3 阶段 14 步）
 │   ├── webrtc.ts                 # WebRTC 连接管理
-│   ├── signaling.ts              # 信令客户端
-│   ├── signaling-do.ts           # Durable Object 信令服务
-│   ├── error-patterns.ts         # 错误模式库
-│   └── install-steps.ts          # 安装步骤数据（声明式步骤树）
+│   └── utils.ts                  # 工具函数
 └── stores/
-    ├── wizard-store.ts           # 向导状态
     └── transfer-store.ts         # 传输状态
 ```
 
 ## 贡献
 
-欢迎贡献! 以下是一些贡献方向：
+欢迎贡献! 一些方向：
 
-- **补充安装步骤** — 不同系统版本的差异、更多边界情况处理
-- **添加错误模式** — 在 `src/lib/error-patterns.ts` 中添加新的已知错误
+- **补充安装步骤** — 在 `src/lib/install-steps.ts` 中添加新步骤或调整现有流程
+- **改进 AI prompt** — 优化 `src/app/api/analyze/route.ts` 中的验证 / 诊断 prompt
 - **改进 UI/UX** — 交互优化、视觉改进
-- **添加聊天平台** — 在命令生成器中支持更多聊天平台选项
 - **国际化** — 添加英文等多语言支持
 
 ```bash
-# 开发
-npm run dev
-
-# 类型检查
-npx tsc --noEmit
-
-# 构建检查
-npm run build
-
-# Lint
-npm run lint
+npm run dev      # 开发
+npm run build    # 构建检查
+npm run lint     # Lint
 ```
 
 ## License

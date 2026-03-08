@@ -1,68 +1,69 @@
-# OpenClaw Install Tools
+<p align="center">
+  <img src="src/app/icon.svg" width="80" height="80" alt="OpenClaw Logo" />
+</p>
 
-English | [中文](./README.md)
+<h1 align="center">OpenClaw Install Tools</h1>
 
-Help you install [OpenClaw](https://openclaw.ai/) — interactive installation wizard, LAN file transfer, and smart diagnostics.
+<p align="center">
+  Help you install <a href="https://openclaw.ai/">OpenClaw</a> — install guide, LAN transfer, AI diagnostics
+</p>
 
-> OpenClaw is a personal AI assistant that runs on your own machine, interacting through chat platforms like WhatsApp, Telegram, and Discord. This tool helps you through the installation process.
+<p align="center">
+  English | <a href="./README.md">中文</a>
+</p>
+
+> OpenClaw is a personal AI assistant that runs on your own machine, interacting through chat platforms like WhatsApp, Telegram, Discord, and Feishu (Lark). This tool helps you through the installation process.
 
 ## Features
 
-### Installation Wizard `/install`
+### Install Guide `/install`
 
-- **Conditional branch guidance** — Automatically recommends steps based on your system environment (Node.js installed? Which install method?)
-- **Windows / macOS support** — Auto-detects your OS and provides platform-specific installation flow
-- **One-click copy** — All terminal commands are copyable with a single click
-- **Command generator** — Select platform, install method, AI model, and chat platforms to generate customized install commands
+- **Phased guidance** — Environment setup → OpenClaw initialization → Feishu plugin integration, from zero to working
+- **Copy → Paste → AI verify** — Each step provides a shell command to copy; paste your terminal output and AI tells you if it's correct
+- **macOS / Windows** — Platform differences handled via tab switching, no page navigation
+- **Feishu plugin integration** — Built-in guide for the official Feishu plugin, from app creation to pairing authorization
 
 ### LAN Transfer `/transfer`
 
-- **WebRTC P2P direct connection** — Files and text transfer directly over LAN, no server involved
-- **4-digit room code pairing** — Open the site on two computers, enter the same room code to connect
-- **File transfer** — Pick a file to send, recipient downloads with one click
-- **Text transfer** — Paste terminal error logs and send in real-time
-- **Clipboard sync** — Enable to automatically sync clipboards between devices
+- **WebRTC P2P direct** — Files and text transfer directly over LAN, no server involved
+- **4-digit room code** — Open the site on two computers, enter the same code to connect
+- **Files / Text / Clipboard** — File transfer, real-time text, and automatic clipboard sync
 
-### Diagnostics `/debug`
+### AI Diagnostics `/debug`
 
-- **Common error lookup** — 6 categories of known installation issues (permissions, environment, network, port conflicts, SSL, API keys)
-- **Platform-specific fixes** — Each issue provides separate fix steps and commands for Windows and macOS
-- **AI log analysis** — Paste error logs and get AI-powered diagnosis and fix suggestions
-- **Two-tier diagnostics** — Frontend regex matching (instant) + Workers AI fallback (for unknown errors)
+- **Pure AI analysis** — Paste any error log, Cloudflare Workers AI analyzes and suggests fixes
+- **No signup required** — Instant diagnosis, logs are not stored
 
 ## Architecture
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│                       Browser (Device A)                       │
-│  ┌──────────┐  ┌──────────────┐  ┌──────────────────────┐    │
-│  │  Install  │  │ Diagnostics  │  │    LAN Transfer      │    │
-│  │  Wizard   │  │  /debug      │  │    /transfer         │    │
-│  └──────────┘  └──────┬───────┘  └──────────┬───────────┘    │
-│                       │                      │                │
-│                       │ AI Analysis          │ WebRTC         │
-│                       ▼                      │ DataChannel    │
-│               ┌───────────────┐              │                │
-│               │  Workers AI   │              │  P2P Direct    │
-│               │ (llama model) │              │                │
-│               └───────────────┘              │                │
-│                                              ▼                │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │           Cloudflare Durable Objects                     │  │
-│  │           (SDP signaling relay only, ~2KB)                │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│                                              │                │
-└──────────────────────────────────────────────┼────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                      Browser (Device A)                      │
+│  ┌──────────┐  ┌──────────────┐  ┌───────────────────┐     │
+│  │  Install  │  │     AI       │  │   LAN Transfer    │     │
+│  │  Guide    │  │  Diagnostics │  │   /transfer       │     │
+│  └────┬─────┘  └──────┬───────┘  └─────────┬─────────┘     │
+│       │                │                     │               │
+│       │ Step verify    │ Log analysis        │ WebRTC        │
+│       ▼                ▼                     │ DataChannel   │
+│  ┌──────────────────────────┐                │               │
+│  │   Cloudflare Workers AI   │                │  P2P Direct   │
+│  │   (llama-3.1-8b)         │                │               │
+│  └──────────────────────────┘                ▼               │
+│                                    ┌──────────────────┐      │
+│                                    │  PeerJS Signaling │      │
+│                                    └──────────────────┘      │
+└─────────────────────────────────────────────────────────────┘
                                                │ WebRTC
                                                │ DataChannel
-┌──────────────────────────────────────────────┼────────────────┐
-│                       Browser (Device B)      │                │
-│                                              ▼                │
-│                                    ┌──────────────────┐       │
-│                                    │   LAN Transfer    │       │
-│                                    │   /transfer       │       │
-│                                    └──────────────────┘       │
-└───────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┼──────────────┐
+│                      Browser (Device B)       │              │
+│                                              ▼              │
+│                                    ┌──────────────────┐     │
+│                                    │   LAN Transfer    │     │
+│                                    │   /transfer       │     │
+│                                    └──────────────────┘     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Tech Stack
@@ -73,22 +74,15 @@ Help you install [OpenClaw](https://openclaw.ai/) — interactive installation w
 | Deployment | Cloudflare Workers |
 | UI | shadcn/ui + Tailwind CSS v4 + Lucide React |
 | State | Zustand |
-| Animation | Framer Motion |
-| P2P Transfer | Native WebRTC API (RTCPeerConnection + DataChannel) |
-| Signaling | Cloudflare Durable Objects (WebSocket) |
+| P2P Transfer | PeerJS (WebRTC) |
 | AI Analysis | Cloudflare Workers AI (llama-3.1-8b-instruct) |
 
 ## Getting Started
 
 ```bash
-# Clone the repo
 git clone https://github.com/Muluk-m/openclaw-install-tools.git
 cd openclaw-install-tools
-
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
 ```
 
@@ -96,10 +90,10 @@ Open http://localhost:3000 to see the app.
 
 ### Cloudflare Deployment
 
-This project uses Durable Objects (signaling) and Workers AI (log analysis). Make sure these features are enabled on your Cloudflare account before deploying.
+This project uses Workers AI (log analysis + step verification). Make sure this feature is enabled on your Cloudflare account before deploying.
 
 ```bash
-# Local preview (simulates Cloudflare environment)
+# Local preview
 npm run preview
 
 # Deploy to Cloudflare Workers
@@ -112,61 +106,43 @@ Configuration is defined in `wrangler.jsonc`.
 
 ```
 src/
-├── app/                          # Next.js App Router pages
+├── app/
 │   ├── page.tsx                  # Landing page
-│   ├── install/                  # Install wizard module
-│   │   ├── page.tsx              # Platform selection (OS auto-detect)
-│   │   ├── windows/page.tsx      # Windows install wizard
-│   │   ├── mac/page.tsx          # macOS install wizard
-│   │   └── customize/page.tsx    # Command generator
-│   ├── transfer/                 # LAN transfer module
+│   ├── install/page.tsx          # Install guide (phased step list)
+│   ├── transfer/
 │   │   ├── page.tsx              # Create/join room
 │   │   └── room/page.tsx         # Transfer interface
-│   ├── debug/                    # Diagnostics module
-│   │   ├── page.tsx              # Error search + common issues
-│   │   ├── [slug]/page.tsx       # Issue detail
-│   │   └── analyze/page.tsx      # AI log analyzer
-│   └── api/                      # API routes
-│       ├── room/route.ts         # Room management API
-│       └── analyze/route.ts      # AI analysis API
+│   ├── debug/page.tsx            # AI diagnostics
+│   └── api/analyze/route.ts      # Workers AI API (step verify + log analysis)
 ├── components/
 │   ├── ui/                       # shadcn/ui components
-│   ├── install/                  # Install wizard components
+│   ├── install/
+│   │   ├── command-block.tsx     # Copyable command block
+│   │   ├── step-block.tsx        # Step display (command + expected output + platform tabs)
+│   │   └── step-verifier.tsx     # AI verifier (paste output → pass/fail)
 │   ├── transfer/                 # Transfer components
-│   └── debug/                    # Diagnostics components
+│   └── debug/log-analyzer.tsx    # AI log analyzer
 ├── lib/
+│   ├── install-steps.ts          # Install step data (3 phases, 14 steps)
 │   ├── webrtc.ts                 # WebRTC connection manager
-│   ├── signaling.ts              # Signaling client
-│   ├── signaling-do.ts           # Durable Object signaling server
-│   ├── error-patterns.ts         # Error pattern library
-│   └── install-steps.ts          # Install step data (declarative step tree)
+│   └── utils.ts                  # Utilities
 └── stores/
-    ├── wizard-store.ts           # Wizard state
     └── transfer-store.ts         # Transfer state
 ```
 
 ## Contributing
 
-Contributions are welcome! Here are some areas to help with:
+Contributions welcome! Some areas:
 
-- **Add install steps** — Handle different OS versions, more edge cases
-- **Add error patterns** — Add new known errors to `src/lib/error-patterns.ts`
+- **Add install steps** — Add new steps or adjust flow in `src/lib/install-steps.ts`
+- **Improve AI prompts** — Optimize verification / diagnosis prompts in `src/app/api/analyze/route.ts`
 - **Improve UI/UX** — Interaction and visual improvements
-- **Add chat platforms** — Support more chat platform options in the command generator
-- **Internationalization** — Add English and other language support
+- **Internationalization** — Add more language support
 
 ```bash
-# Development
-npm run dev
-
-# Type check
-npx tsc --noEmit
-
-# Build check
-npm run build
-
-# Lint
-npm run lint
+npm run dev      # Development
+npm run build    # Build check
+npm run lint     # Lint
 ```
 
 ## License
