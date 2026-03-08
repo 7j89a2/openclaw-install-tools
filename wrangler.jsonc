@@ -23,6 +23,16 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["SignalingRoom"]
+		},
+		{
+			"tag": "v2",
+			"deleted_classes": ["SignalingRoom"]
+		}
+	],
 	/**
 	 * Workers AI for log analysis
 	 */
